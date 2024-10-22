@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="approval_type_groups" model="ir.module.category">
+        <field name="name">Approval type Users</field>
+        <field name="sequence">21</field>
+        <field name="visible" eval="0"/>
+    </record>
+    <record id="admin_approval_type_form" model="res.groups">
+        <field name="name">admin</field>
+        <field name="category_id" ref="approval_type_groups"/>
+    </record>
+    <record id="other_users_approval_type" model="res.groups">
+        <field name="name">other users</field>
+        <field name="category_id" ref="approval_type_groups"/>
+    </record>
+</odoo>

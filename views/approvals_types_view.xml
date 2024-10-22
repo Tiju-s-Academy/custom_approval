@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="approval_type_tree_view" model="ir.ui.view">
+        <field name="name">approval.type.tree.view</field>
+        <field name="model">approvals.types</field>
+        <field name="arch" type="xml">
+            <tree string="Approval Tree">
+                <field name="approvals_type"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="approval_type_form_view" model="ir.ui.view">
+        <field name="name">approval.type.form.view</field>
+        <field name="model">approvals.types</field>
+        <field name="arch" type="xml">
+            <form string="Approvals">
+                <sheet>
+                     <field name="approval_image" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="approvals_type" string="Approval Type"/>
+                        <h1>
+                            <field name="approvals_type" placeholder="e.g. Procurement.." required="true"/>
+                        </h1>
+                    </div>
+                     <group>
+                        <field name="description"/>
+                        <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                    <page string="Approvers">
+                            <field name="approver_ids">
+                                <tree editable="bottom">
+                                    <field name="approver_id"/>
+                                    <field name="required"/>
+                                </tree>
+                            </field>
+                        </page>
+                </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="action_approvals_type" model="ir.actions.act_window">
+        <field name="name">Approvals Types</field>
+        <field name="res_model">approvals.types</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

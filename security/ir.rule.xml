@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Rule for Admin to see all records -->
+    <record id="rule_admin_see_all" model="ir.rule">
+        <field name="name">Admin: Can see all records</field>
+        <field name="model_id" ref="model_approval_request"/> <!-- Change model_approval_request to your model -->
+        <field name="domain_force">[]</field>
+        <field name="groups" eval="[(4, ref('admin_approval_type_form'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Rule for Users to see only their own records -->
+    <record id="rule_user_see_own" model="ir.rule">
+        <field name="name">Users: Can see only their own records</field>
+        <field name="model_id" ref="model_approval_request"/> <!-- Adjust to the correct model -->
+        <field name="domain_force">[('request_owner_id', '=', user.id)]</field> <!-- Adjust 'user_id' based on your model -->
+        <field name="groups" eval="[(4, ref('other_users_approval_type'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Rule for Approvers to see records assigned to them -->
+    <record id="rule_approver_see_assigned" model="ir.rule">
+        <field name="name">Approver: Can see records assigned for approval</field>
+        <field name="model_id" ref="model_approval_request"/> <!-- Adjust model_approval_request to your model -->
+        <field name="domain_force">[('approver_ids.approver_id', '=', user.id)]</field> <!-- Adjust 'approver_id' based on your model -->
+        <field name="groups" eval="[(4, ref('admin_approval_type_form')), (4, ref('other_users_approval_type'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+</odoo>
