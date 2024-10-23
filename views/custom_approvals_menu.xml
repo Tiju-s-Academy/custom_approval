@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <menuitem id="menu_custom_approvals_root" name="Approvals"/>
+    <menuitem
+            id="menu_custom_approvals_root"
+            name="Approvals"
+            web_icon="custom_approval,static/description/icon.png"/>
     <menuitem id="menu_my_approvals" name="My Approvals" parent="menu_custom_approvals_root"/>
     <menuitem id="menu_new_request" name="New Request" parent="menu_my_approvals" action="action_approval_request"/>
         <menuitem id="menu_configuration" name="Configuration" parent="menu_custom_approvals_root"/>

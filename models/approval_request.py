@@ -1,6 +1,7 @@
 from odoo import models, fields,_,api
 from odoo.exceptions import UserError
 
+
 class ApprovalRequest(models.Model):
     """ module is used for request approvals"""
     _name = 'approval.request'
@@ -20,6 +21,7 @@ class ApprovalRequest(models.Model):
                                    string='Approvers', readonly=True)
     approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True)
     approval_count = fields.Integer(string="Approval Count", default=0, store=True)
+    approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
 
     def action_submit(self):
         """ when submitted  approvel request it will change the state into submitted"""
@@ -42,6 +44,8 @@ class ApprovalRequest(models.Model):
                 # Check if the approval count matches the number of approvers
                 if self.approval_count >= len(self.approver_ids):
                     self.state = 'approved'
+                    self.write({'state': self.state})
+                    self.approval_date = fields.Datetime.now()
                     return {
                         'effect': {
                             'fadeout': 'slow',
@@ -73,4 +77,6 @@ class ApprovalRequest(models.Model):
 
     def action_cancel(self):
         """ state changes into canceled"""
+        self.write({'state': self.state})
         self.state = 'canceled'
+

@@ -32,6 +32,10 @@
                             <div>
                                 <field name="approval_type_id"/>
                             </div>
+
+                            <div class="text-end mt-2 text-success">
+                            <span><field name="approval_date" options="{'format': 'datetime'}"/></span>
+                        </div>
                         </div>
                     </t>
                 </templates>

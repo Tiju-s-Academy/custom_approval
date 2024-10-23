@@ -11,11 +11,6 @@
         'views/approval_request.xml',
         'views/custom_approvals_menu.xml',
     ],
-    'assets': {
-            'web.assets_frontend': [
-                'school_management/static/description/icon.png',
-            ]
-        },
     'application': True,
     'license': 'LGPL-3',
 }
