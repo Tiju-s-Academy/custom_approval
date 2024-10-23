@@ -1,7 +1,6 @@
 from odoo import models, fields,_,api
 from odoo.exceptions import UserError
 
-
 class ApprovalRequest(models.Model):
     """ module is used for request approvals"""
     _name = 'approval.request'
@@ -43,6 +42,13 @@ class ApprovalRequest(models.Model):
                 # Check if the approval count matches the number of approvers
                 if self.approval_count >= len(self.approver_ids):
                     self.state = 'approved'
+                    return {
+                        'effect': {
+                            'fadeout': 'slow',
+                            'message': 'Approved',
+                            'type': 'rainbow_man',
+                        }
+                    }
             else:
                 raise UserError(_('You have already approved this request.'))
         else:

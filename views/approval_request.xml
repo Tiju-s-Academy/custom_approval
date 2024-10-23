@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <tree string="approval request">
                 <field name="name"/>
+                <field name="description"/>
                 <field name="state"/>
             </tree>
         </field>
