@@ -71,11 +71,11 @@
                             invisible="state != 'rejected'"/>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Approval Subject" required="true"/>
+                            <field name="name" placeholder="Approval Subject" required="true" readonly="state != 'draft'"/>
                         </h1>
                     </div>
                     <group>
-                        <field name="approval_type_id" required="true"/>
+                        <field name="approval_type_id" required="true" readonly="state != 'draft'"/>
                         <field name="request_owner_id" readonly="1"/>
                         <field name="request_date" readonly="1"/>
                     </group>
@@ -84,15 +84,14 @@
                     </group>
                     <notebook>
                         <page string="Approvers">
-                            <field name="approver_ids">
+                            <field name="approver_ids" readonly="true">
                                 <tree string="Approvers">
                                     <field name="approver_id"/>
                                     <field name="required"/>
-                                    <field name="weightage"/>
                                 </tree>
                             </field>
                         </page>
-                        <page string="Approval Status">
+                        <page string="Approval Status" readonly="true">
                             <field name="approved_by_ids" readonly="1">
                                 <tree string="Approved By">
                                     <field name="name"/>
@@ -108,10 +107,14 @@
             </form>
         </field>
     </record>
-
     <record id="action_approval_request" model="ir.actions.act_window">
         <field name="name">Approval Requests</field>
         <field name="res_model">approval.request</field>
         <field name="view_mode">kanban,tree,form</field>
+    </record>
+    <record id="action_approval_request_kanban" model="ir.actions.act_window">
+        <field name="name">Approval Requests</field>
+        <field name="res_model">approval.request</field>
+        <field name="view_mode">kanban,form,tree</field>
     </record>
 </odoo>

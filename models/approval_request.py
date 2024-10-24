@@ -14,11 +14,12 @@ class ApprovalRequest(models.Model):
                                        readonly=True)
     request_date = fields.Date(string='Request Date', default=fields.Date.context_today, readonly=True)
     state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted'), ('approved', 'Approved'),
-                              ('canceled', 'Canceled'), ('rejected', 'Rejected')], default='draft', string='Status',
+                              ('rejected', 'Rejected')], default='draft', string='Status',
                              tracking=True)
     description = fields.Text(string='Description')
     approver_ids = fields.One2many('approval.type.approver', related='approval_type_id.approver_ids',
                                    string='Approvers', readonly=True)
+
     approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True)
     approval_count = fields.Integer(string="Approval Count", default=0, store=True)
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
@@ -58,6 +59,7 @@ class ApprovalRequest(models.Model):
             if current_user not in self.approved_by_ids:
                 # Add the current user to the approved list
                 self.approved_by_ids = [(4, current_user.id)]
+
                 self.approval_count += 1  # Increment the count
 
                 # Write the updated count to the database
@@ -137,7 +139,7 @@ class ApprovalRequest(models.Model):
             request.approved_by_ids = [(3, request.env.user.id)]
 
     def action_cancel(self):
-        """ state changes into canceled"""
+        """ state changes into draft"""
+        self.state = 'draft'
         self.write({'state': self.state})
-        self.state = 'canceled'
 

@@ -58,17 +58,41 @@ class ApprovalsTypes(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Approval Requests',
-            'view_mode': 'kanban',
+            'view_mode': 'kanban,form',
             'res_model': 'approval.request',
             'domain': [('approval_type_id', '=', self.id)],
             'create': True
             }
 
     def btn1(self):
-        print("just write the function")
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approval Requests',
+            'view_mode': 'kanban',
+            'res_model': 'approval.request',
+            'domain': ['&', ('approval_type_id', '=', self.id), ('state', '=', 'approved')],
+            'create': True
+        }
 
     def btn2(self):
-        print("just write the function")
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approval Requests',
+            'view_mode': 'kanban',
+            'res_model': 'approval.request',
+            'domain': ['&', ('approval_type_id', '=', self.id), ('state', '=', 'rejected')],
+            'create': True
+        }
 
     def btn3(self):
-        print("just write the function")
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approval Requests',
+            'view_mode': 'kanban',
+            'res_model': 'approval.request',
+            'domain': ['&',('approval_type_id', '=', self.id),('state','=','submitted')],
+            'create': True
+        }
