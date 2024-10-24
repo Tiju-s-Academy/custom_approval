@@ -38,30 +38,43 @@
                                 </p>
                                 <div class="oe_module_action">
                                     <button type="object" class="btn btn-primary btn-sm"
-                                            name="action_new_approval_request"><i class="fa fa-plus"></i> Request
+                                            name="action_new_approval_request">
+                                        <i class="fa fa-plus"></i>
+                                        Request
                                     </button>
                                     <button type="object" class="btn btn-sm btn-primary float-end"
-                                            name="action_get_approval_request"><i class="fa fa-eye"></i> View
+                                            name="action_get_approval_request">
+                                        <i class="fa fa-eye"></i>
+                                        View
                                     </button>
                                 </div>
                                 <br/>
                                 <div class="oe_module_action">
-                                    <button class="btn btn-sm btn-secondary position-relative bg-success text-white"
+                                    <button class="btn btn-sm btn-secondary position-relative text-black me-2"
                                             name="btn1" type="object">
                                         <i class="fa fa-check"></i> <!-- Tick icon -->
                                         :
                                         <field name="approved_request_count"/>
                                     </button>
-                                    <button class="btn btn-sm btn-secondary position-relative bg-danger text-white"
+                                    <button class="btn btn-sm btn-secondary position-relative text-black"
                                             name="btn2" type="object">
                                         <i class="fa fa-times"></i> <!-- Cross icon -->
                                         :
                                         <field name="rejected_request_count"/>
                                     </button>
-                                    <button class="btn btn-sm btn-secondary float-end" name="btn3" type="object">To
-                                        Review:
-                                        <field name="to_review_request_count" type="button"/>
+
+                                    <button class="btn btn-sm btn-secondary float-end" name="btn3" type="object">
+                                        <t t-if="record.to_review_request_count.raw_value &gt; 0">
+                                            <span style="color: red;">To Review:
+                                                <field name="to_review_request_count"/>
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            To Review:
+                                            <field name="to_review_request_count"/>
+                                        </t>
                                     </button>
+
                                 </div>
                             </div>
                         </div>

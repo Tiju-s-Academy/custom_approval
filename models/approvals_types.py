@@ -16,7 +16,7 @@ class ApprovalsTypes(models.Model):
     approver_ids = fields.One2many('approval.type.approver', 'approval_type_id', string='Approvers')
     approved_request_count = fields.Integer(string='Approved Requests', compute='_compute_request_counts')
     rejected_request_count = fields.Integer(string='Rejected Requests', compute='_compute_request_counts')
-    to_review_request_count = fields.Integer(string='To Review Requests', compute='_compute_request_counts')
+    to_review_request_count = fields.Integer(string='To Review Requests', compute='_compute_request_counts',default=0)
 
     @api.depends('approvals_type')
     def _compute_request_counts(self):
@@ -47,7 +47,7 @@ class ApprovalsTypes(models.Model):
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'approval.request',
-            'target': 'new',  # This opens the form in a new modal window.
+            'target': 'current',  # This opens the form in a new modal window.
             'context': {
                 'default_approval_type_id': self.id,  # Passing the current approval type ID to the form
                 'create': True,
