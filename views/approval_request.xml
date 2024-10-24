@@ -15,7 +15,7 @@
         <field name="name">approval.request.kanban</field>
         <field name="model">approval.request</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_mobile" default_order="state asc" sample="1">
+            <kanban default_group_by="state" default_order="sequence asc" class="o_kanban_mobile" sample="1">
                 <field name="name"/>
                 <field name="description"/>
                 <field name="state"/>
@@ -34,8 +34,10 @@
                             </div>
 
                             <div class="text-end mt-2 text-success">
-                            <span><field name="approval_date" options="{'format': 'datetime'}"/></span>
-                        </div>
+                                <span>
+                                    <field name="approval_date" options="{'format': 'datetime'}"/>
+                                </span>
+                            </div>
                         </div>
                     </t>
                 </templates>
@@ -49,14 +51,24 @@
         <field name="arch" type="xml">
             <form string="Approval Request">
                 <header>
-                    <button name="action_submit" type="object" string="Submit" class="oe_highlight" invisible="state != 'draft'"/>
-                    <button name="action_approve" type="object" string="Approve" class="btn-primary" invisible="state != 'submitted'"/>
-                    <button name="action_reject" type="object" string="Reject" class="btn-secondary" invisible="state != 'submitted'"/>
-                    <button name="action_cancel" type="object" string="Cancel" class="btn-secondary" invisible="state != 'submitted'"/>
-                    <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger" invisible="state != 'approved'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,cancel,approved,rejected"/>
+                    <button name="action_submit" type="object" string="Submit" class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-secondary"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
+                            invisible="state != 'approved'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,cancel,approved,rejected"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"
+                            invisible="state != 'approved'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
+                            invisible="state != 'rejected'"/>
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Approval Subject" required="true"/>
@@ -76,16 +88,17 @@
                                 <tree string="Approvers">
                                     <field name="approver_id"/>
                                     <field name="required"/>
+                                    <field name="weightage"/>
                                 </tree>
                             </field>
                         </page>
                         <page string="Approval Status">
-                        <field name="approved_by_ids" readonly="1">
-                            <tree string="Approved By">
-                                <field name="name"/>
-                            </tree>
-                        </field>
-                    </page>
+                            <field name="approved_by_ids" readonly="1">
+                                <tree string="Approved By">
+                                    <field name="name"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">
@@ -100,6 +113,5 @@
         <field name="name">Approval Requests</field>
         <field name="res_model">approval.request</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="view_id" ref="approval_request_kanban_view"/>
     </record>
 </odoo>

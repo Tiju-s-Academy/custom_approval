@@ -10,33 +10,94 @@
             </tree>
         </field>
     </record>
+    <record id="approval_type_kanban_view" model="ir.ui.view">
+        <field name="name">approval.type.kanban</field>
+        <field name="model">approvals.types</field>
+        <field name="arch" type="xml">
+            <kanban create="false" class="o_modules_kanban">
+                <field name="approval_image"/>
+                <field name="approvals_type"/>
+                <field name="description"/>
+                <field name="approved_request_count"/>
+                <field name="rejected_request_count"/>
+                <field name="to_review_request_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_module_vignette">
+                            <t t-if="record.id">
+                                <img t-att-src="kanban_image('approvals.types', 'approval_image', record.id.raw_value)"
+                                     alt="Approvals Types Image" class="oe_kanban_avatar float-start me-3" width="64"
+                                     height="64"/>
+                            </t>
+                            <div class="oe_module_desc">
+                                <h4 class="o_kanban_record_title">
+                                    <field name="approvals_type"/>
+                                </h4>
+                                <p class="oe_module_name">
+                                    <field name="description"/>
+                                </p>
+                                <div class="oe_module_action">
+                                    <button type="object" class="btn btn-primary btn-sm"
+                                            name="action_new_approval_request"><i class="fa fa-plus"></i> Request
+                                    </button>
+                                    <button type="object" class="btn btn-sm btn-primary float-end"
+                                            name="action_get_approval_request"><i class="fa fa-eye"></i> View
+                                    </button>
+                                </div>
+                                <br/>
+                                <div class="oe_module_action">
+                                    <button class="btn btn-sm btn-secondary position-relative bg-success text-white"
+                                            name="btn1" type="object">
+                                        <i class="fa fa-check"></i> <!-- Tick icon -->
+                                        :
+                                        <field name="approved_request_count"/>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary position-relative bg-danger text-white"
+                                            name="btn2" type="object">
+                                        <i class="fa fa-times"></i> <!-- Cross icon -->
+                                        :
+                                        <field name="rejected_request_count"/>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary float-end" name="btn3" type="object">To
+                                        Review:
+                                        <field name="to_review_request_count" type="button"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
     <record id="approval_type_form_view" model="ir.ui.view">
         <field name="name">approval.type.form.view</field>
         <field name="model">approvals.types</field>
         <field name="arch" type="xml">
             <form string="Approvals">
                 <sheet>
-                     <field name="approval_image" widget="image" class="oe_avatar"/>
+                    <field name="approval_image" widget="image" class="oe_avatar"/>
                     <div class="oe_title">
                         <label for="approvals_type" string="Approval Type"/>
                         <h1>
                             <field name="approvals_type" placeholder="e.g. Procurement.." required="true"/>
                         </h1>
                     </div>
-                     <group>
+                    <group>
                         <field name="description"/>
                         <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
                     </group>
                     <notebook>
-                    <page string="Approvers">
+                        <page string="Approvers">
                             <field name="approver_ids">
                                 <tree editable="bottom">
                                     <field name="approver_id"/>
                                     <field name="required"/>
+                                    <field name="weightage"/>
                                 </tree>
                             </field>
                         </page>
-                </notebook>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
@@ -48,6 +109,13 @@
     <record id="action_approvals_type" model="ir.actions.act_window">
         <field name="name">Approvals Types</field>
         <field name="res_model">approvals.types</field>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="approval_type_kanban_view"/>
+    </record>
+    <record id="action_approvals_type_list" model="ir.actions.act_window">
+        <field name="name">Approval Types</field>
+        <field name="res_model">approvals.types</field>
         <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="approval_type_tree_view"/>
     </record>
 </odoo>

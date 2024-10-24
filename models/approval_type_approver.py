@@ -14,3 +14,5 @@ class ApprovalTypeApprover(models.Model):
     sequence = fields.Integer(string='Sequence', default=10, help="Defines the order of approval.")
     is_approved = fields.Boolean(string="Is Approved?", default=False,
                                  help="Check this box if the approver has approved.")
+    weightage = fields.Integer(string="Weightage", default=1,
+                               help="Defines the priority of the approver (higher is more important).")
