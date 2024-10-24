@@ -6,7 +6,7 @@ class ApprovalRequest(models.Model):
     """ module is used for request approvals"""
     _name = 'approval.request'
     _description = 'Approval Request'
-    _inherit = 'mail.thread'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Approval Subject', required=True, tracking=True)
     approval_type_id = fields.Many2one('approvals.types', string='Approval Type', required=True)
@@ -39,6 +39,23 @@ class ApprovalRequest(models.Model):
                 record.sequence = 4
             elif record.state == 'canceled':
                 record.sequence = 5
+
+    # @api.model
+    # def create(self, vals):
+    #     """ Override the create method to send activities to approvers. """
+    #     record = super(ApprovalRequest, self).create(vals)
+    #
+    #     # Send an activity to all approvers
+    #     approvers = record.approver_ids.mapped('approver_id')
+    #     if approvers:
+    #         for approver in approvers:
+    #             record.activity_schedule(
+    #                 activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
+    #                 summary=_('Approval Request: %s' % record.name),
+    #                 user_id=approver.id,
+    #                 note=_('You are requested to approve the following approval request: %s' % record.name),
+    #             )
+    #     return record
 
     def action_submit(self):
         """ when submitted  approvel request it will change the state into submitted"""

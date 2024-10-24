@@ -80,7 +80,7 @@
                         <field name="request_date" readonly="1"/>
                     </group>
                     <group>
-                        <field name="description" readonly="true"/>
+                        <field name="description" readonly="state != 'draft'"/>
                     </group>
                     <notebook>
                         <page string="Approvers">
@@ -104,6 +104,7 @@
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="message_ids"/>
+                    <field name="activity_ids" widget="mail_activity" options="{'fold': True}"/>
                 </div>
             </form>
         </field>
