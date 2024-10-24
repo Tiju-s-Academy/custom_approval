@@ -20,7 +20,7 @@ class ApprovalRequest(models.Model):
     approver_ids = fields.One2many('approval.type.approver', related='approval_type_id.approver_ids',
                                    string='Approvers', readonly=True)
 
-    approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True)
+    approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True,tracking=True)
     approval_count = fields.Integer(string="Approval Count", default=0, store=True)
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
 
@@ -59,7 +59,7 @@ class ApprovalRequest(models.Model):
             if current_user not in self.approved_by_ids:
                 # Add the current user to the approved list
                 self.approved_by_ids = [(4, current_user.id)]
-
+                self.approval_date = fields.Datetime.now()
                 self.approval_count += 1  # Increment the count
 
                 # Write the updated count to the database
