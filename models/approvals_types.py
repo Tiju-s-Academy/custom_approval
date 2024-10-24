@@ -69,7 +69,7 @@ class ApprovalsTypes(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Approval Requests',
-            'view_mode': 'kanban',
+            'view_mode': 'kanban,form',
             'res_model': 'approval.request',
             'domain': ['&', ('approval_type_id', '=', self.id), ('state', '=', 'approved')],
             'create': True
@@ -80,7 +80,7 @@ class ApprovalsTypes(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Approval Requests',
-            'view_mode': 'kanban',
+            'view_mode': 'kanban,form',
             'res_model': 'approval.request',
             'domain': ['&', ('approval_type_id', '=', self.id), ('state', '=', 'rejected')],
             'create': True
@@ -91,7 +91,7 @@ class ApprovalsTypes(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Approval Requests',
-            'view_mode': 'kanban',
+            'view_mode': 'kanban,form',
             'res_model': 'approval.request',
             'domain': ['&',('approval_type_id', '=', self.id),('state','=','submitted')],
             'create': True
