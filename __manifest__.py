@@ -4,6 +4,7 @@
     'summary': 'A comprehensive module to manage Approvals from the Managers',
     'depends': ['base', 'web', 'mail'],
     'data': [
+        'data/activity.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',
         'security/ir.rule.xml',

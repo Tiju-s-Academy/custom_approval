@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="mail_activity_data_todo" model="mail.activity.type">
+        <field name="name">Approval:Requests</field>
+        <field name="res_model">approval.request</field>
+        <field name="delay_count">30</field>
+    </record>
+</odoo>

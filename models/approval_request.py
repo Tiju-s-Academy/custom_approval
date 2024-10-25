@@ -13,7 +13,7 @@ class ApprovalRequest(models.Model):
     request_owner_id = fields.Many2one('res.users', string='Request Owner', default=lambda self: self.env.user,
                                        readonly=True)
     request_date = fields.Date(string='Request Date', default=fields.Date.context_today, readonly=True)
-    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted'), ('approved', 'Approved'),
+    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted'),('on hold','On Hold'), ('approved', 'Approved'),
                               ('rejected', 'Rejected')], default='draft', string='Status',
                              tracking=True)
     description = fields.Text(string='Description')
@@ -40,22 +40,20 @@ class ApprovalRequest(models.Model):
             elif record.state == 'canceled':
                 record.sequence = 5
 
-    # @api.model
-    # def create(self, vals):
-    #     """ Override the create method to send activities to approvers. """
-    #     record = super(ApprovalRequest, self).create(vals)
-    #
-    #     # Send an activity to all approvers
-    #     approvers = record.approver_ids.mapped('approver_id')
-    #     if approvers:
-    #         for approver in approvers:
-    #             record.activity_schedule(
-    #                 activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
-    #                 summary=_('Approval Request: %s' % record.name),
-    #                 user_id=approver.id,
-    #                 note=_('You are requested to approve the following approval request: %s' % record.name),
-    #             )
-    #     return record
+    @api.model
+    def create(self, vals):
+        """ Override the create method to send activities to approvers. """
+        record = super(ApprovalRequest, self).create(vals)
+
+        # Send an activity to all approvers
+        approvers = record.approver_ids.mapped('approver_id')
+        if approvers:
+            for approver in approvers:
+                record.activity_schedule(
+                    activity_type_id=self.env.ref('custom_approval.mail_activity_data_todo').id,
+                    user_id=approver.id,
+                )
+        return record
 
     def action_submit(self):
         """ when submitted  approvel request it will change the state into submitted"""
@@ -113,26 +111,14 @@ class ApprovalRequest(models.Model):
             raise UserError(_('You are not an approver.'))
 
     def action_reject(self):
-        """ Change the state to 'rejected' only if the current user has the highest weightage,
-            or if all higher-priority approvers have already approved/rejected. """
 
+        """ Reject the approval request if the current user is an approver.
+                If any higher-priority approver has already rejected, move to rejected state.
+            """
         current_user = self.env.user
-        approvers = self.approver_ids.sorted(lambda a: -a.weightage)  # Sort approvers by weightage in descending order
-        highest_weightage_approver = approvers[0] if approvers else None  # The highest priority approver
-
+        # Check if the current user is an approver
         if current_user in self.approver_ids.mapped('approver_id'):
-            # Find the current user's approval entry
-            current_approver = self.approver_ids.filtered(lambda a: a.approver_id == current_user)
 
-            # Ensure that the current user is an approver
-            if current_approver:
-                # Get the highest-priority approver who hasn't acted yet
-                for approver in approvers:
-                    if approver.is_approved is False and approver.approver_id != current_user:
-                        # A higher-priority approver still hasn't approved/rejected, so no rejection yet
-                        raise UserError(_('You cannot reject this request until higher priority approvers have acted.'))
-
-                # If the current user is the highest-priority approver or no higher-priority approver is left, reject
                 self.state = 'rejected'
                 self.write({'state': self.state})
                 return {
@@ -142,18 +128,37 @@ class ApprovalRequest(models.Model):
                         'type': 'rainbow_man',
                     }
                 }
-            else:
-                raise UserError(_('You are not an approver.'))
         else:
             raise UserError(_('You are not an approver.'))
 
     def action_withdraw(self):
-        """ function for withdraw the approval request"""
-        for request in self:
-            if request.approval_count > 0:
-                request.approval_count -= 1  # Decrement the count
-            request.state = 'submitted'  # Change the state back to submitted
-            request.approved_by_ids = [(3, request.env.user.id)]
+        """ Withdraw approval from the approval request.
+            If the user is an approver, remove them from the approved list and reset the state to 'submitted'.
+        """
+        current_user = self.env.user
+
+        # Check if the current user is an approver
+        if current_user in self.approver_ids.mapped('approver_id'):
+            # Check if the current user has already approved
+            if current_user in self.approved_by_ids:
+                # Remove the current user from the approved list
+                self.approved_by_ids = [(3, current_user.id)]  # 3 means to unlink
+
+                # Decrement the approval count
+                self.approval_count -= 1
+                self.write({'approval_count': self.approval_count})
+
+                # Set the state to 'submitted'
+                self.state = 'submitted'
+                self.write({'state': self.state})
+
+                # Save the changes
+                return True  # Optionally return True to indicate success
+            else:
+                raise UserError(_('You have not approved this request yet.'))
+        else:
+            raise UserError(_('You are not an approver.'))
+
 
     def action_cancel(self):
         """ state changes into draft"""
