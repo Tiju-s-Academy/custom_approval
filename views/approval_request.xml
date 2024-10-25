@@ -61,8 +61,10 @@
                             invisible="state != 'submitted'"/>
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
                             invisible="state != 'approved'"/>
+                    <button name="action_hold" type="object" string="Hold" class="btn-secondary"
+                            invisible="state != 'submitted'"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,cancel,approved,rejected"/>
+                           statusbar_visible="draft,submitted,cancel,on_hold,approved,rejected"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"

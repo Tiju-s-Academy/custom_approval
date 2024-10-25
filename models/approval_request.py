@@ -13,7 +13,7 @@ class ApprovalRequest(models.Model):
     request_owner_id = fields.Many2one('res.users', string='Request Owner', default=lambda self: self.env.user,
                                        readonly=True)
     request_date = fields.Date(string='Request Date', default=fields.Date.context_today, readonly=True)
-    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted'),('on hold','On Hold'), ('approved', 'Approved'),
+    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted'),('on_hold','On Hold'), ('approved', 'Approved'),
                               ('rejected', 'Rejected')], default='draft', string='Status',
                              tracking=True)
     description = fields.Text(string='Description')
@@ -25,6 +25,8 @@ class ApprovalRequest(models.Model):
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
 
     sequence = fields.Integer(compute='_compute_sequence', store=True)
+
+
 
     @api.depends('state')
     def _compute_sequence(self):
@@ -87,6 +89,8 @@ class ApprovalRequest(models.Model):
                 if current_approver_weightage == max_weightage:
                     self.state = 'approved'
                     self.write({'state': self.state, 'approval_date': fields.Datetime.now()})
+                    super().activity_unlink(['mail.mail_activity_data_todo'])
+                    print(super().activity_unlink(['mail.mail_activity_data_todo']))
                     return {
                         'effect': {
                             'fadeout': 'slow',
@@ -165,3 +169,35 @@ class ApprovalRequest(models.Model):
         self.state = 'draft'
         self.write({'state': self.state})
 
+    # @api.multi
+    # def action_hold(self):
+    #     """ Put the approval request on hold. """
+    #     self.ensure_one()  # Ensure single record operation
+    #     hold_date = self.env['ir.config_parameter'].sudo().get_param('custom_approval.hold_date', default=False)
+    #
+    #     if not hold_date:
+    #         raise UserError(_('Please provide a date to hold the request.'))
+    #
+    #     # Set the state to on_hold
+    #     self.state = 'on_hold'
+    #     self.hold_date = hold_date
+    #     self.write({'state': self.state, 'hold_date': self.hold_date})
+    #
+    #     # Log the hold action in the chatter
+    #     message = f'The request has been put on hold until {self.hold_date}.'
+    #     self.message_post(body=message)
+    #
+    #     return True
+
+    # def action_on_hold(self):
+    #
+    #     return {'type': 'ir.actions.act_window',
+    #             'name': _('Hold date'),
+    #             'res_model': 'hold.request.wizard',
+    #             'target': 'new',
+    #             'view_mode': 'form',
+    #             'view_type': 'form',
+    #             'context': {'default_user_id': self.id},
+    #             }
+    def action_hold(self):
+        self.state = 'on_hold'

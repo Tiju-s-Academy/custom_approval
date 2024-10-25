@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+   <!-- Odoo View Definition for Whatsapp Message Form -->
+   <record id="hold_date_form" model="ir.ui.view">
+       <field name="name">hold.date.view.form</field>
+       <field name="model">hold.request.wizard</field>
+       <field name="arch" type="xml">
+           <form string="hold date">
+               <group>
+                   <field name="hold_date"/>
+               </group>
+               <footer>
+                   <button   string="submit"  class="btn-primary"/>
+                   <button name="cancel" string="Cancel" special="cancel"/>
+               </footer>
+           </form>
+       </field>
+   </record>
+</odoo>
