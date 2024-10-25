@@ -25,7 +25,7 @@ class ApprovalRequest(models.Model):
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
 
     sequence = fields.Integer(compute='_compute_sequence', store=True)
-
+    hold_date = fields.Date(string='Hold Date',tracking=True)
 
 
     @api.depends('state')
@@ -163,41 +163,24 @@ class ApprovalRequest(models.Model):
         else:
             raise UserError(_('You are not an approver.'))
 
-
     def action_cancel(self):
         """ state changes into draft"""
         self.state = 'draft'
         self.write({'state': self.state})
 
-    # @api.multi
-    # def action_hold(self):
-    #     """ Put the approval request on hold. """
-    #     self.ensure_one()  # Ensure single record operation
-    #     hold_date = self.env['ir.config_parameter'].sudo().get_param('custom_approval.hold_date', default=False)
-    #
-    #     if not hold_date:
-    #         raise UserError(_('Please provide a date to hold the request.'))
-    #
-    #     # Set the state to on_hold
-    #     self.state = 'on_hold'
-    #     self.hold_date = hold_date
-    #     self.write({'state': self.state, 'hold_date': self.hold_date})
-    #
-    #     # Log the hold action in the chatter
-    #     message = f'The request has been put on hold until {self.hold_date}.'
-    #     self.message_post(body=message)
-    #
-    #     return True
+    def action_on_hold(self):
+        current_user = self.env.user
+        # Check if the current user is an approver
+        if current_user in self.approver_ids.mapped('approver_id'):
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Hold Date'),
+                'res_model': 'hold.request.wizard',
+                'target': 'new',
+                'view_mode': 'form',
+                'context': {'default_approval_request_id': self.id},
+            }
+        else:
+            raise UserError(_('You are not an approver.'))
 
-    # def action_on_hold(self):
-    #
-    #     return {'type': 'ir.actions.act_window',
-    #             'name': _('Hold date'),
-    #             'res_model': 'hold.request.wizard',
-    #             'target': 'new',
-    #             'view_mode': 'form',
-    #             'view_type': 'form',
-    #             'context': {'default_user_id': self.id},
-    #             }
-    def action_hold(self):
-        self.state = 'on_hold'
+

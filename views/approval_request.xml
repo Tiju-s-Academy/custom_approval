@@ -54,14 +54,14 @@
                     <button name="action_submit" type="object" string="Submit" class="oe_highlight"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
-                            invisible="state != 'submitted'"/>
+                            invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_reject" type="object" string="Reject" class="btn-secondary"
-                            invisible="state != 'submitted'"/>
+                            invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
                             invisible="state != 'submitted'"/>
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
                             invisible="state != 'approved'"/>
-                    <button name="action_hold" type="object" string="Hold" class="btn-secondary"
+                    <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"
                             invisible="state != 'submitted'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,cancel,on_hold,approved,rejected"/>
@@ -73,7 +73,8 @@
                             invisible="state != 'rejected'"/>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Approval Subject" required="true" readonly="state != 'draft'"/>
+                            <field name="name" placeholder="Approval Subject" required="true"
+                                   readonly="state != 'draft'"/>
                         </h1>
                     </div>
                     <group>
@@ -99,7 +100,9 @@
                                     <field name="name"/>
                                 </tree>
                             </field>
-                            <p>Approved Time:<field name="approval_date"/> </p>
+                            <p>Approved Time:
+                                <field name="approval_date"/>
+                            </p>
                         </page>
                     </notebook>
                 </sheet>

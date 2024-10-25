@@ -7,10 +7,11 @@
        <field name="arch" type="xml">
            <form string="hold date">
                <group>
+                   <field name="approval_request_id" invisible="1"/>
                    <field name="hold_date"/>
                </group>
                <footer>
-                   <button   string="submit"  class="btn-primary"/>
+                   <button name="action_submit_hold_date" string="Submit" type="object" class="btn-primary"/>
                    <button name="cancel" string="Cancel" special="cancel"/>
                </footer>
            </form>
