@@ -91,6 +91,9 @@ class ApprovalRequest(models.Model):
                     self.write({'state': self.state, 'approval_date': fields.Datetime.now()})
                     super().activity_unlink(['mail.mail_activity_data_todo'])
                     print(super().activity_unlink(['mail.mail_activity_data_todo']))
+                    activity_ids = self.activity_ids
+                    if activity_ids:
+                        activity_ids.unlink()
                     return {
                         'effect': {
                             'fadeout': 'slow',
