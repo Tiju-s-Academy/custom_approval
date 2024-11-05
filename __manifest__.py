@@ -11,6 +11,7 @@
         'views/approvals_types_view.xml',
         'views/approval_request.xml',
         'wizard/hold_request_wizard.xml',
+        'wizard/ask_query_wizard.xml',
         'views/custom_approvals_menu.xml',
     ],
     'application': True,

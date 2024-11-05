@@ -15,7 +15,7 @@
         <field name="name">approval.request.kanban</field>
         <field name="model">approval.request</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" default_order="sequence asc" class="o_kanban_mobile" sample="1">
+            <kanban default_group_by="state" default_order="sequence asc" records_draggable="false" class="o_kanban_mobile" sample="1">
                 <field name="name"/>
                 <field name="description"/>
                 <field name="state"/>
@@ -59,6 +59,8 @@
                             invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
                             invisible="state != 'submitted'"/>
+                    <button name="action_ask_query" type="object" string="Ask Query" class="btn-danger"
+                            invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
                             invisible="state != 'approved'"/>
                     <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"

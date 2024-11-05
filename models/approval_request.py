@@ -1,5 +1,6 @@
 from odoo import models, fields,_,api
 from odoo.exceptions import UserError
+import logging
 
 
 class ApprovalRequest(models.Model):
@@ -46,6 +47,8 @@ class ApprovalRequest(models.Model):
     def create(self, vals):
         """ Override the create method to send activities to approvers. """
         record = super(ApprovalRequest, self).create(vals)
+        print("hello")
+
 
         # Send an activity to all approvers
         approvers = record.approver_ids.mapped('approver_id')
@@ -59,7 +62,6 @@ class ApprovalRequest(models.Model):
 
     def action_submit(self):
         """ when submitted  approvel request it will change the state into submitted"""
-
         self.state = 'submitted'
 
     def action_approve(self):
@@ -185,5 +187,22 @@ class ApprovalRequest(models.Model):
             }
         else:
             raise UserError(_('You are not an approver.'))
+
+    def action_ask_query(self):
+        followers = self.message_follower_ids.mapped('partner_id.user_ids')
+        print("helloo")
+        print(followers)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Ask Query'),
+            'res_model': 'ask.query.wizard',
+            'target': 'new',
+            'view_mode': 'form',
+            'context': {
+                'default_follower_ids': [(6, 0, followers.ids)],
+                'follower_ids': followers.ids,  # Pass IDs for domain
+                'default_record_id': self.id
+            }
+        }
 
 
