@@ -15,7 +15,8 @@
         <field name="name">approval.request.kanban</field>
         <field name="model">approval.request</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" default_order="sequence asc" records_draggable="false" class="o_kanban_mobile" sample="1">
+            <kanban default_group_by="state" default_order="sequence asc" records_draggable="false"
+                    class="o_kanban_mobile" sample="1">
                 <field name="name"/>
                 <field name="description"/>
                 <field name="state"/>
@@ -32,12 +33,21 @@
                             <div>
                                 <field name="approval_type_id"/>
                             </div>
-
-                            <div class="text-end mt-2 text-success">
-                                <span>
-                                    <field name="approval_date" options="{'format': 'datetime'}"/>
-                                </span>
+                            <div class="o_kanban_record_bottom mt-3">
+                                <div class="oe_kanban_bottom_left">
+                                    <div>
+                                        <field name="approved_by_ids" widget="many2many_avatar_user"/>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <div class="text-end mt-2 text-success">
+                                        <span>
+                                            <field name="approval_date" options="{'format': 'datetime'}"/>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </t>
                 </templates>
