@@ -18,6 +18,8 @@ class ApprovalsTypes(models.Model):
     rejected_request_count = fields.Integer(string='Rejected Requests', compute='_compute_request_counts')
     to_review_request_count = fields.Integer(string='To Review Requests', compute='_compute_request_counts',default=0)
 
+    finance = fields.Boolean(string="Finance", default=False)
+
     @api.depends('approvals_type')
     def _compute_request_counts(self):
         for record in self:

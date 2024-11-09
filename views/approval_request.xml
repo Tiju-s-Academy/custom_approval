@@ -20,6 +20,7 @@
                 <field name="name"/>
                 <field name="description"/>
                 <field name="state"/>
+                <field name="paid_state"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click">
@@ -40,10 +41,18 @@
                                     </div>
                                 </div>
                                 <div class="oe_kanban_bottom_right">
+                                    <div>
+                                        <div t-if="record.paid_state.raw_value" class="text-end mt-2 text-danger">
+                                        <strong>
+                                            <field name="paid_state"/>
+                                        </strong>
+
+                                    </div>
                                     <div class="text-end mt-2 text-success">
                                         <span>
                                             <field name="approval_date" options="{'format': 'datetime'}"/>
                                         </span>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -60,6 +69,8 @@
         <field name="model">approval.request</field>
         <field name="arch" type="xml">
             <form string="Approval Request">
+                <field name="finance" invisible="1"/>
+                <field name="paid_state" invisible="1"/>
                 <header>
                     <button name="action_submit" type="object" string="Submit" class="oe_highlight"
                             invisible="state != 'draft'"/>
@@ -75,8 +86,11 @@
                             invisible="state != 'approved'"/>
                     <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"
                             invisible="state != 'submitted'"/>
+                    <button name="action_paid" type="object" class="btn-primary" string="Paid"
+                            invisible="state !='approved' or paid_state == 'Paid'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,cancel,on_hold,approved,rejected"/>
+
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"

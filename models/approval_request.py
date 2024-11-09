@@ -28,6 +28,10 @@ class ApprovalRequest(models.Model):
     sequence = fields.Integer(compute='_compute_sequence', store=True)
     hold_date = fields.Date(string='Hold Date',tracking=True)
 
+    finance = fields.Boolean(related='approval_type_id.finance', string="Finance", store=True)
+
+    paid_state = fields.Char(string='Paid',readonly=True,tracking=True)
+
 
     @api.depends('state')
     def _compute_sequence(self):
@@ -204,5 +208,24 @@ class ApprovalRequest(models.Model):
                 'default_record_id': self.id
             }
         }
+
+    def action_paid(self):
+        current_user = self.env.user
+        if current_user in self.approver_ids.mapped('approver_id'):
+            self.write({'paid_state': 'Paid'})
+            return {
+                'effect': {
+                    'fadeout': 'slow',
+                    'message': 'Payment Successful',
+                    'type': 'rainbow_man',
+                }
+            }
+        else:
+            raise UserError(_('You are not an approver.'))
+
+
+
+
+
 
 

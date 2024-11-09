@@ -98,6 +98,7 @@
                     </div>
                     <group>
                         <field name="description"/>
+                        <field name="finance"/>
                         <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
                     </group>
                     <notebook>
