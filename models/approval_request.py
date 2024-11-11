@@ -22,7 +22,6 @@ class ApprovalRequest(models.Model):
                                    string='Approvers', readonly=True)
 
     approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True,tracking=True)
-    approval_count = fields.Integer(string="Approval Count", default=0, store=True)
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
 
     sequence = fields.Integer(compute='_compute_sequence', store=True)
@@ -31,6 +30,33 @@ class ApprovalRequest(models.Model):
     finance = fields.Boolean(related='approval_type_id.finance', string="Finance", store=True)
 
     paid_state = fields.Char(string='Paid',readonly=True,tracking=True)
+
+    can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
+
+    @api.depends('approved_by_ids', 'state')
+    def _compute_can_approve(self):
+        """ Compute whether the current user can approve based on weightage hierarchy and admin rights. """
+        current_user = self.env.user
+        is_admin = current_user.has_group('custom_approval.admin_approval_type_form')
+
+        for record in self:
+            # Get the current user's approver record
+            approver = record.approver_ids.filtered(lambda a: a.approver_id == current_user)
+
+            # If the user is not in the approvers list, they cannot approve
+            if not approver:
+                record.can_approve = False
+                continue
+
+            # Current user's weightage
+            current_user_weightage = approver.weightage
+
+            lower_approvers = record.approver_ids.filtered(lambda a: a.weightage < current_user_weightage)
+
+            all_lower_approved = all(
+                lower_approver.approver_id in record.approved_by_ids for lower_approver in lower_approvers
+            )
+            record.can_approve = all_lower_approved and (is_admin or current_user not in record.approved_by_ids)
 
 
     @api.depends('state')
@@ -72,56 +98,41 @@ class ApprovalRequest(models.Model):
         """ Function to approve the approval request, based on weightage.
             If the approver with the maximum weightage approves, the request is automatically approved.
         """
-        # Find the maximum weightage among the approvers
-        max_weightage = max(self.approver_ids.mapped('weightage')) if self.approver_ids else 0
+
         current_user = self.env.user
+        approver = self.approver_ids.filtered(lambda x: x.approver_id == current_user)
 
-        # Check if the current user is an approver
-        if current_user in self.approver_ids.mapped('approver_id'):
-            # Check if the current user has already approved
-            if current_user not in self.approved_by_ids:
-                # Add the current user to the approved list
-                self.approved_by_ids = [(4, current_user.id)]
-                self.approval_date = fields.Datetime.now()
-                self.approval_count += 1  # Increment the count
+        current_user_weightage = approver.weightage
+        lower_approvers = self.approver_ids.filtered(lambda x: x.weightage < current_user_weightage)
+        print(lower_approvers)
 
-                # Write the updated count to the database
-                self.write({'approval_count': self.approval_count})
+        if current_user in self.approved_by_ids:
+            raise UserError(_('You have already approved this request.'))
 
-                # Get the current user's weightage
-                current_approver_weightage = self.approver_ids.filtered(lambda approver: approver.approver_id == current_user).weightage
+        self.approved_by_ids = [(4, current_user.id)]
 
-                # If the current user has the maximum weightage, automatically approve
-                if current_approver_weightage == max_weightage:
-                    self.state = 'approved'
-                    self.write({'state': self.state, 'approval_date': fields.Datetime.now()})
-                    super().activity_unlink(['mail.mail_activity_data_todo'])
-                    print(super().activity_unlink(['mail.mail_activity_data_todo']))
-                    activity_ids = self.activity_ids
-                    if activity_ids:
-                        activity_ids.unlink()
-                    return {
-                        'effect': {
-                            'fadeout': 'slow',
-                            'message': 'Approved by highest weightage',
-                            'type': 'rainbow_man',
-                        }
-                    }
-                # If approval count matches the number of approvers, approve
-                elif self.approval_count >= len(self.approver_ids):
-                    self.state = 'approved'
-                    self.write({'state': self.state, 'approval_date': fields.Datetime.now()})
-                    return {
-                        'effect': {
-                            'fadeout': 'slow',
-                            'message': 'Approved',
-                            'type': 'rainbow_man',
-                        }
-                    }
-            else:
-                raise UserError(_('You have already approved this request.'))
+        if current_user.has_group('custom_approval.admin_approval_type_form'):
+            self.state = 'approved'
+            self.approval_date = fields.Datetime.now()
+            self.write({'state': self.state, 'approval_date': self.approval_date})
+            return {
+                'effect': {
+                    'fadeout': 'slow',
+                    'message': 'Approved by admin',
+                    'type': 'rainbow_man',
+                }
+            }
+        if all(approver.approver_id in self.approved_by_ids for approver in lower_approvers):
+            return {
+                'effect': {
+                    'fadeout': 'slow',
+                    'message': 'Approved approvers',
+                    'type': 'rainbow_man',
+                }
+            }
         else:
-            raise UserError(_('You are not an approver.'))
+            raise UserError(_('All lower-weighted approvers must approve before you can approve this request.'))
+
 
     def action_reject(self):
 
@@ -156,10 +167,6 @@ class ApprovalRequest(models.Model):
             if current_user in self.approved_by_ids:
                 # Remove the current user from the approved list
                 self.approved_by_ids = [(3, current_user.id)]  # 3 means to unlink
-
-                # Decrement the approval count
-                self.approval_count -= 1
-                self.write({'approval_count': self.approval_count})
 
                 # Set the state to 'submitted'
                 self.state = 'submitted'
@@ -222,10 +229,3 @@ class ApprovalRequest(models.Model):
             }
         else:
             raise UserError(_('You are not an approver.'))
-
-
-
-
-
-
-
