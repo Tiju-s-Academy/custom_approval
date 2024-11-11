@@ -35,29 +35,35 @@ class ApprovalRequest(models.Model):
 
     @api.depends('approved_by_ids', 'state')
     def _compute_can_approve(self):
-        """ Compute whether the current user can approve based on weightage hierarchy and admin rights. """
+        """ Compute whether the current user can approve based on weightage hierarchy. """
         current_user = self.env.user
-        is_admin = current_user.has_group('custom_approval.admin_approval_type_form')
-
         for record in self:
             # Get the current user's approver record
             approver = record.approver_ids.filtered(lambda a: a.approver_id == current_user)
 
-            # If the user is not in the approvers list, they cannot approve
+            # Ensure the user is an approver
             if not approver:
+                record.can_approve = False
+                continue
+
+            # If the approver has weightage of zero, they cannot approve at this point
+            if approver.weightage == 0:
                 record.can_approve = False
                 continue
 
             # Current user's weightage
             current_user_weightage = approver.weightage
 
-            lower_approvers = record.approver_ids.filtered(lambda a: a.weightage < current_user_weightage)
+            # Filter lower-weighted approvers, excluding those with weightage zero
+            lower_approvers = record.approver_ids.filtered(lambda a: 0 < a.weightage < current_user_weightage)
 
+            # Check if all lower-weighted approvers have approved
             all_lower_approved = all(
                 lower_approver.approver_id in record.approved_by_ids for lower_approver in lower_approvers
             )
-            record.can_approve = all_lower_approved and (is_admin or current_user not in record.approved_by_ids)
 
+            # User can approve if all lower-weighted approvers have approved or if they are an admin
+            record.can_approve = all_lower_approved
 
     @api.depends('state')
     def _compute_sequence(self):
@@ -102,15 +108,24 @@ class ApprovalRequest(models.Model):
         current_user = self.env.user
         approver = self.approver_ids.filtered(lambda x: x.approver_id == current_user)
 
+        # Ensure the approver record exists for the current user
+        if not approver:
+            raise UserError(_('You are not listed as an approver for this request.'))
+
         current_user_weightage = approver.weightage
-        lower_approvers = self.approver_ids.filtered(lambda x: x.weightage < current_user_weightage)
+
+        # Filter lower-weighted approvers excluding those with weightage of zero
+        lower_approvers = self.approver_ids.filtered(lambda x: 0 < x.weightage < current_user_weightage)
         print(lower_approvers)
 
+        # Check if current user has already approved
         if current_user in self.approved_by_ids:
             raise UserError(_('You have already approved this request.'))
 
+        # Add current user to approved_by_ids
         self.approved_by_ids = [(4, current_user.id)]
 
+        # If current user is an admin, approve directly
         if current_user.has_group('custom_approval.admin_approval_type_form'):
             self.state = 'approved'
             self.approval_date = fields.Datetime.now()
@@ -122,7 +137,9 @@ class ApprovalRequest(models.Model):
                     'type': 'rainbow_man',
                 }
             }
-        if all(approver.approver_id in self.approved_by_ids for approver in lower_approvers):
+
+        # Ensure all lower-weighted approvers have approved
+        if all(lower_approver.approver_id.id in self.approved_by_ids.ids for lower_approver in lower_approvers):
             return {
                 'effect': {
                     'fadeout': 'slow',
@@ -132,7 +149,6 @@ class ApprovalRequest(models.Model):
             }
         else:
             raise UserError(_('All lower-weighted approvers must approve before you can approve this request.'))
-
 
     def action_reject(self):
 
