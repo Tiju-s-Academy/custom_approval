@@ -23,8 +23,8 @@ class ApprovalRequest(models.Model):
 
     approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True,tracking=True)
     approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
-
     sequence = fields.Integer(compute='_compute_sequence', store=True)
+
     hold_date = fields.Date(string='Hold Date',tracking=True)
 
     finance = fields.Boolean(related='approval_type_id.finance', string="Finance", store=True)
@@ -40,10 +40,12 @@ class ApprovalRequest(models.Model):
         for record in self:
             # Get the current user's approver record
             approver = record.approver_ids.filtered(lambda a: a.approver_id == current_user)
+            print(approver)
 
             # Ensure the user is an approver
             if not approver:
                 record.can_approve = False
+                print("not a approver")
                 continue
 
             # If the approver has weightage of zero, they cannot approve at this point
@@ -56,14 +58,19 @@ class ApprovalRequest(models.Model):
 
             # Filter lower-weighted approvers, excluding those with weightage zero
             lower_approvers = record.approver_ids.filtered(lambda a: 0 < a.weightage < current_user_weightage)
+            print("loewer approver")
+            print(lower_approvers)
 
             # Check if all lower-weighted approvers have approved
             all_lower_approved = all(
                 lower_approver.approver_id in record.approved_by_ids for lower_approver in lower_approvers
             )
+            print("all are approved??")
+            print(all_lower_approved)
 
             # User can approve if all lower-weighted approvers have approved or if they are an admin
             record.can_approve = all_lower_approved
+            print(record.can_approve)
 
     @api.depends('state')
     def _compute_sequence(self):
@@ -84,7 +91,6 @@ class ApprovalRequest(models.Model):
         """ Override the create method to send activities to approvers. """
         record = super(ApprovalRequest, self).create(vals)
         print("hello")
-
 
         # Send an activity to all approvers
         approvers = record.approver_ids.mapped('approver_id')
@@ -217,8 +223,6 @@ class ApprovalRequest(models.Model):
 
     def action_ask_query(self):
         followers = self.message_follower_ids.mapped('partner_id.user_ids')
-        print("helloo")
-        print(followers)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Ask Query'),

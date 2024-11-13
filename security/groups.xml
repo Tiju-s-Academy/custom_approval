@@ -13,4 +13,8 @@
         <field name="name">other users</field>
         <field name="category_id" ref="approval_type_groups"/>
     </record>
+    <record id="accountant_user" model="res.groups">
+        <field name="name">Accountant users</field>
+        <field name="category_id" ref="approval_type_groups"/>
+    </record>
 </odoo>
