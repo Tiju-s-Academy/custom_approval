@@ -43,16 +43,16 @@
                                 <div class="oe_kanban_bottom_right">
                                     <div>
                                         <div t-if="record.paid_state.raw_value" class="text-end mt-2 text-danger">
-                                            <strong>
-                                                <field name="paid_state"/>
-                                            </strong>
+                                        <strong>
+                                            <field name="paid_state"/>
+                                        </strong>
 
-                                        </div>
-                                        <div class="text-end mt-2 text-success">
-                                            <span>
-                                                <field name="approval_date" options="{'format': 'datetime'}"/>
-                                            </span>
-                                        </div>
+                                    </div>
+                                    <div class="text-end mt-2 text-success">
+                                        <span>
+                                            <field name="approval_date" options="{'format': 'datetime'}"/>
+                                        </span>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -70,15 +70,17 @@
         <field name="arch" type="xml">
             <form string="Approval Request">
                 <field name="finance" invisible="1"/>
+                <field name="finance_approval" invisible="1"/>
                 <field name="paid_state" invisible="1"/>
-                <field name="can_approve" invisible="1"/>
                 <header>
                     <button name="action_submit" type="object" string="Submit" class="oe_highlight"
                             invisible="state != 'draft'"/>
+                    <button name="action_verify" type="object" class="btn-primary" string="Verify"
+                            groups="custom_approval.account_approval_user"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
-                            invisible="state not in ('submitted', 'on_hold') or not can_approve" />
+                            invisible="state not in ('verified','submitted', 'on_hold')"/>
                     <button name="action_reject" type="object" string="Reject" class="btn-secondary"
-                            invisible="state not in ('submitted', 'on_hold') or not can_approve"/>
+                            invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
                             invisible="state != 'submitted'"/>
                     <button name="action_ask_query" type="object" string="Ask Query" class="btn-danger"
@@ -86,13 +88,12 @@
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
                             invisible="state != 'approved'"/>
                     <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"
-                            invisible="state != 'submitted' or not can_approve"/>
+                            invisible="state != 'submitted'"/>
                     <button name="action_paid" type="object" class="btn-primary" string="Paid"
-                            groups="custom_approval.accountant_user"
-                            invisible="state !='approved' or paid_state == 'Paid' or not finance"/>
+                            groups="custom_approval.account_approval_user"
+                            invisible="state !='approved' or paid_state == 'Paid'"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,cancel,on_hold,approved,rejected"/>
-
+                           statusbar_visible="draft,verified,submitted,cancel,on_hold,approved,rejected"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"
