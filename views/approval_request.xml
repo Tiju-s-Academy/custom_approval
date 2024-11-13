@@ -76,7 +76,7 @@
                     <button name="action_submit" type="object" string="Submit" class="oe_highlight"
                             invisible="state != 'draft'"/>
                     <button name="action_verify" type="object" class="btn-primary" string="Verify"
-                            groups="custom_approval.account_approval_user"/>
+                            groups="custom_approval.accountant_user"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
                             invisible="state not in ('verified','submitted', 'on_hold')"/>
                     <button name="action_reject" type="object" string="Reject" class="btn-secondary"
