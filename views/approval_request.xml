@@ -90,7 +90,7 @@
                     <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"
                             invisible="state != 'submitted'"/>
                     <button name="action_paid" type="object" class="btn-primary" string="Paid"
-                            groups="custom_approval.account_approval_user"
+                            groups="custom_approval.accountant_user"
                             invisible="state !='approved' or paid_state == 'Paid'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,verified,submitted,cancel,on_hold,approved,rejected"/>
