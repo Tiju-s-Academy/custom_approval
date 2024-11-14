@@ -74,7 +74,13 @@
                                             <field name="to_review_request_count"/>
                                         </t>
                                     </button>
-
+                                    <t t-if="record.to_verify_request_count.raw_value &gt; 0">
+                                    <button class="btn btn-sm btn-secondary float-end mt-2" name="btn4" type="object">
+                                            <span style="color: orange;">In Verification:
+                                                <field name="to_verify_request_count"/>
+                                            </span>
+                                    </button>
+                                    </t>
                                 </div>
                             </div>
                         </div>

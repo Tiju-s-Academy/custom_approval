@@ -21,6 +21,8 @@
                 <field name="description"/>
                 <field name="state"/>
                 <field name="paid_state"/>
+                <progressbar field="state"
+                             colors='{"verification": "warning","submitted":"danger","approved":"success"}'/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click">
@@ -76,13 +78,14 @@
                     <button name="action_submit" type="object" string="Submit" class="oe_highlight"
                             invisible="state != 'draft'"/>
                     <button name="action_verify" type="object" class="btn-primary" string="Verify"
-                            groups="custom_approval.accountant_user"/>
+                            groups="custom_approval.accountant_user"
+                            invisible="state !='verification'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
-                            invisible="state not in ('verified','submitted', 'on_hold')"/>
+                            invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_reject" type="object" string="Reject" class="btn-secondary"
                             invisible="state not in ('submitted', 'on_hold')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
-                            invisible="state != 'submitted'"/>
+                            invisible="state not in ('submitted','verification')"/>
                     <button name="action_ask_query" type="object" string="Ask Query" class="btn-danger"
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"

@@ -1,6 +1,5 @@
-from odoo import models, fields,_,api
+from odoo import models, fields, _, api
 from odoo.exceptions import UserError
-import logging
 
 
 class ApprovalRequest(models.Model):
@@ -14,7 +13,7 @@ class ApprovalRequest(models.Model):
     request_owner_id = fields.Many2one('res.users', string='Request Owner', default=lambda self: self.env.user,
                                        readonly=True)
     request_date = fields.Date(string='Request Date', default=fields.Date.context_today, readonly=True)
-    state = fields.Selection([('draft', 'Draft'),('verification', 'Verification'), ('submitted', 'Submitted'),
+    state = fields.Selection([('draft', 'Draft'), ('verification', 'Verification'), ('submitted', 'Submitted'),
                               ('on_hold', 'On Hold'), ('approved', 'Approved'),
                               ('rejected', 'Rejected')], default='draft', string='Status',
                              tracking=True)
@@ -22,18 +21,18 @@ class ApprovalRequest(models.Model):
     approver_ids = fields.One2many('approval.type.approver', related='approval_type_id.approver_ids',
                                    string='Approvers', readonly=True)
 
-    approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True,tracking=True)
+    approved_by_ids = fields.Many2many('res.users', string='Approved By', readonly=True, tracking=True)
     approval_count = fields.Integer(string="Approval Count", default=0, store=True)
-    approval_date = fields.Datetime(string='Approval Date', readonly=True,tracking=True)
+    approval_date = fields.Datetime(string='Approval Date', readonly=True, tracking=True)
 
     sequence = fields.Integer(compute='_compute_sequence', store=True)
-    hold_date = fields.Date(string='Hold Date',tracking=True)
+    hold_date = fields.Date(string='Hold Date', tracking=True)
 
     finance = fields.Boolean(related='approval_type_id.finance', string="Finance", store=True)
 
-    finance_approval = fields.Boolean(string='Finance_approved',default=False)
+    finance_approval = fields.Boolean(string='Finance_approved', default=False)
 
-    paid_state = fields.Char(string='Paid',readonly=True,tracking=True)
+    paid_state = fields.Char(string='Paid', readonly=True, tracking=True)
 
     @api.depends('state')
     def _compute_sequence(self):
@@ -49,31 +48,39 @@ class ApprovalRequest(models.Model):
             elif record.state == 'canceled':
                 record.sequence = 5
 
-    @api.model
-    def create(self, vals):
-        """ Override the create method to send activities to approvers. """
-        record = super(ApprovalRequest, self).create(vals)
-        print("hello")
-
-        # Send an activity to all approvers
-        approvers = record.approver_ids.mapped('approver_id')
-        if approvers:
-            for approver in approvers:
-                record.activity_schedule(
-                    activity_type_id=self.env.ref('custom_approval.mail_activity_data_todo').id,
-                    user_id=approver.id,
-                )
-        return record
-
     def action_submit(self):
         """ when submitted  approvel request it will change the state into submitted"""
+        approvers = self.approver_ids.mapped('approver_id')
+        group_id = 'custom_approval.accountant_user'
         if self.finance:
             if self.finance_approval:
                 self.state = 'submitted'
+                if self.approver_ids:
+                    # Filter approvers with weightage > 0
+                    approvers_with_weightage = self.approver_ids.filtered(lambda approver: approver.weightage > 0)
+                    print(approvers)
+                    for approver in approvers_with_weightage:
+                        self.activity_schedule(
+                            'custom_approval.mail_activity_data_todo',
+                            user_id=approver.approver_id.id,
+                        )
             else:
+                if approvers:
+                    for approver in approvers:
+                        if approver.has_group(group_id):
+                            self.activity_schedule(
+                                'custom_approval.mail_activity_data_todo',
+                                user_id=approver.id,
+                            )
                 self.state = 'verification'
         else:
             self.state = 'submitted'
+            if approvers:
+                for approver in approvers:
+                    self.activity_schedule(
+                        'custom_approval.mail_activity_data_todo',
+                        user_id=approver.id,
+                    )
 
     def action_approve(self):
         """ Function to approve the approval request, based on weightage.
@@ -105,7 +112,6 @@ class ApprovalRequest(models.Model):
                 if current_approver_weightage == max_weightage:
                     self.state = 'approved'
                     self.write({'state': self.state, 'approval_date': fields.Datetime.now()})
-                    super().activity_unlink(['mail.mail_activity_data_todo'])
                     activity_ids = self.activity_ids
                     if activity_ids:
                         activity_ids.unlink()
@@ -235,7 +241,10 @@ class ApprovalRequest(models.Model):
     def action_verify(self):
         self.finance_approval = True
         self.state = 'submitted'
-
+        activity_ids = self.activity_ids
+        if activity_ids:
+            activity_ids.unlink()
+        self.action_submit()
 
 
 

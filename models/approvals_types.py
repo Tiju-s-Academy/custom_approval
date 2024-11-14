@@ -17,6 +17,7 @@ class ApprovalsTypes(models.Model):
     approved_request_count = fields.Integer(string='Approved Requests', compute='_compute_request_counts')
     rejected_request_count = fields.Integer(string='Rejected Requests', compute='_compute_request_counts')
     to_review_request_count = fields.Integer(string='To Review Requests', compute='_compute_request_counts',default=0)
+    to_verify_request_count = fields.Integer(string='To Verify',compute='_compute_request_counts',default=0)
 
     finance = fields.Boolean(string="Finance", default=False)
 
@@ -43,6 +44,13 @@ class ApprovalsTypes(models.Model):
                 ('state', '=', 'submitted')  # Assuming 'submitted' is the state for reviewable requests
             ])
             record.to_review_request_count = to_review_requests
+
+            to_verify_requests = self.env['approval.request'].search_count([
+                ('approval_type_id', '=', record.id),
+                ('state', '=', 'verification')
+            ])
+            record.to_verify_request_count = to_verify_requests
+
     def action_new_approval_request(self):
         self.ensure_one()
         return {
@@ -96,5 +104,15 @@ class ApprovalsTypes(models.Model):
             'view_mode': 'kanban,form',
             'res_model': 'approval.request',
             'domain': ['&',('approval_type_id', '=', self.id),('state','=','submitted')],
+            'create': True
+        }
+    def btn4(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approval Requests',
+            'view_mode': 'kanban,form',
+            'res_model': 'approval.request',
+            'domain': ['&',('approval_type_id', '=', self.id),('state','=','verification')],
             'create': True
         }
