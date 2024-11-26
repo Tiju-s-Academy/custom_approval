@@ -15,7 +15,7 @@
         <field name="name">approval.request.kanban</field>
         <field name="model">approval.request</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" default_order="create_date asc" records_draggable="false"
+            <kanban default_group_by="state" default_order="create_date desc" records_draggable="false"
                     class="o_kanban_mobile" sample="1">
                 <field name="name"/>
                 <field name="description"/>
