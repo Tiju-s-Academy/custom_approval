@@ -146,18 +146,22 @@ class ApprovalRequest(models.Model):
         current_user = self.env.user
         # Check if the current user is an approver
         if current_user in self.approver_ids.mapped('approver_id'):
-
-                self.state = 'rejected'
-                self.write({'state': self.state})
-                return {
-                    'effect': {
-                        'fadeout': 'slow',
-                        'message': 'Rejected',
-                        'type': 'rainbow_man',
-                    }
+            self.state = 'rejected'
+            self.write({'state': self.state})
+            activity_ids = self.activity_ids
+            if activity_ids:
+                activity_ids.unlink()
+            return {
+                'effect': {
+                    'fadeout': 'slow',
+                    'message': 'Rejected',
+                    'type': 'rainbow_man',
                 }
+            }
         else:
             raise UserError(_('You are not an approver.'))
+
+
 
     def action_withdraw(self):
         """ Withdraw approval from the approval request.
