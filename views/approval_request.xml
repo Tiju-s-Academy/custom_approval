@@ -90,6 +90,8 @@
                             invisible="state != 'approved'"/>
                     <button name="action_on_hold" type="object" string="Hold" class="btn-secondary"
                             invisible="state != 'submitted'"/>
+                    <button name="action_ask_resubmit" type="object" string="Re-Submit" class="btn-primary"
+                            invisible="state not in ('on_hold')"/>
                     <button name="action_paid" type="object" class="btn-primary" string="Paid"
                             groups="custom_approval.accountant_user"
                             invisible="state !='approved' or paid_state == 'Paid'"/>
@@ -120,7 +122,6 @@
                             <field name="approver_ids" readonly="true">
                                 <tree string="Approvers">
                                     <field name="approver_id"/>
-                                    <field name="required"/>
                                 </tree>
                             </field>
                         </page>

@@ -133,6 +133,14 @@ class ApprovalRequest(models.Model):
                             'type': 'rainbow_man',
                         }
                     }
+                else:
+                    return {
+                        'effect': {
+                            'fadeout': 'slow',
+                            'message': 'You Approved',
+                            'type': 'rainbow_man',
+                        }
+                    }
             else:
                 raise UserError(_('You have already approved this request.'))
         else:
@@ -160,8 +168,6 @@ class ApprovalRequest(models.Model):
             }
         else:
             raise UserError(_('You are not an approver.'))
-
-
 
     def action_withdraw(self):
         """ Withdraw approval from the approval request.
@@ -241,6 +247,29 @@ class ApprovalRequest(models.Model):
             }
         else:
             raise UserError(_('You are not an approver.'))
+
+    def action_ask_resubmit(self):
+        if self.request_owner_id.id == self.env.user.id:
+            activity_ids = self.activity_ids
+            if activity_ids:
+                activity_ids.unlink()
+            self.write({
+                'state': 'draft',  # Set the state to 'draft'
+                'approved_by_ids': [(5, 0, 0)],  # Remove all approved_by_ids
+                'approval_count': 0,  # Reset approval count
+                'approval_date': False,  # Clear the approval date
+            })
+            return {
+                'effect': {
+                    'fadeout': 'slow',
+                    'message': 'Request moved to Draft and approvals cleared.',
+                    'type': 'rainbow_man',
+                }
+            }
+        else:
+            raise UserError(_('You are not an created this approval.'))
+
+
 
     def action_verify(self):
         self.finance_approval = True
