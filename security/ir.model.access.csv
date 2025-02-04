@@ -3,6 +3,7 @@ access_admin_approvals_type,approvals.type,model_approvals_types,admin_approval_
 access_admin_approver,approver,model_approval_type_approver,admin_approval_type_form,1,1,1,1
 access_admin_approval_request,admin_approval_request,model_approval_request,admin_approval_type_form,1,1,1,1
 aceess_admin_hold_date_wizard,hold_date_wizard,model_hold_request_wizard,admin_approval_type_form,1,1,1,1
+aceess_accounts_hold_date_wizard,accounts hold_date_wizard,model_hold_request_wizard,accountant_user,1,1,1,1
 
 access_user_approval_request,user_approval_request,model_approval_request,other_users_approval_type,1,1,1,0
 access_user_approvals_type,user.approvals.type,model_approvals_types,other_users_approval_type,1,0,0,0
