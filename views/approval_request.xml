@@ -83,7 +83,7 @@
                     <button name="action_reject" type="object" string="Reject" class="btn-danger"
                             invisible="state not in ('submitted', 'on_hold','verification')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
-                            invisible="state not in ('submitted','verification')"/>
+                            invisible="state not in ('verification','submitted') or request_owner_id != uid"/>
                     <button name="action_ask_query" type="object" string="Ask Query" class="btn-danger"
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_withdraw" type="object" string="Withdraw" class="btn-danger"
